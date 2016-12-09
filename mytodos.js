@@ -220,7 +220,7 @@ if(Meteor.isClient){
             var documentId = this._id;
             var confirm = window.confirm("Delete this task?");
             if(confirm){
-                Todos.remove({ _id: documentId });
+                Meteor.call('removeListItem', documentId);
             }
         },
 
@@ -238,11 +238,9 @@ if(Meteor.isClient){
             var documentId = this._id;
             var isCompleted = this.completed;
             if(isCompleted){
-                Todos.update({ _id: documentId }, {$set: { completed: false }});
-                console.log("Task marked as incomplete.");
+                Meteor.call('changeItemStatus', documentId, false);
             } else {
-                Todos.update({ _id: documentId }, {$set: { completed: true }});
-                console.log("Task marked as complete.");
+                Meteor.call('changeItemStatus', documentId, true);
             }
         }
 
@@ -328,6 +326,33 @@ if(Meteor.isServer){
                 throw new Meteor.Error("not-logged-in", "You're not logged-in.");
             }
             Todos.update(data, {$set: { name: todoItem }});
+        },
+
+        //to change the status of a task
+        'changeItemStatus': function(documentId, status){
+            check(status, Boolean);
+            var currentUser = Meteor.userId();
+            var data = {
+                _id: documentId,
+                createdBy: currentUser
+            }
+            if(!currentUser){
+                throw new Meteor.Error("not-logged-in", "You're not logged-in.");
+            }
+            Todos.update(data, {$set: { completed: status }});
+        },
+
+        //to remove a task
+        'removeListItem': function(documentId){
+            var currentUser = Meteor.userId();
+            var data = {
+                _id: documentId,
+                createdBy: currentUser
+            }
+            if(!currentUser){
+                throw new Meteor.Error("not-logged-in", "You're not logged-in.");
+            }
+            Todos.remove(data);
         }
     });
 
