@@ -9,6 +9,7 @@ Router.route('/',{
 Router.route('/register');
 Router.route('/login');
 Router.route('/list/:_id', {
+    name: 'listPage',
     template: 'listPage',
     data: function(){
         var currentList = this.params._id;
@@ -64,12 +65,16 @@ if(Meteor.isClient){
     });
 
     //code for events
+
+    //add list event
     Template.addList.events({
         'submit form': function(event){
           event.preventDefault();
           var listName = $('[name=listName]').val();
           Lists.insert({
               name: listName
+          }, function(error, results){
+                Router.go('listPage', { _id: results });
           });
           $('[name=listName]').val('');
         }
