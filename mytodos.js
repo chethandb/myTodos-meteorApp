@@ -201,16 +201,14 @@ if(Meteor.isClient){
         'submit form': function(event){
             event.preventDefault();
             var todoName = $('[name="todoName"]').val();
-            var currentUser = Meteor.userId();
             var currentList = this._id;
-            Todos.insert({
-                name: todoName,
-                completed: false,
-                createdAt: new Date(),
-                createdBy: currentUser,
-                listId: currentList
+            Meteor.call('createListItem', todoName, currentList, function(error){
+                if(error){
+                    console.log(error.reason);
+                } else {
+                    $('[name="todoName"]').val('');
+                }
             });
-            $('[name="todoName"]').val('');
         }
     });
 
@@ -230,9 +228,9 @@ if(Meteor.isClient){
             if(event.which == 13 || event.which == 27){
                 $(event.target).blur();
             } else {
-                    var documentId = this._id;
-                    var todoItem = $(event.target).val();
-                    Todos.update({ _id: documentId }, {$set: { name: todoItem }});
+                var documentId = this._id;
+                var todoItem = $(event.target).val();
+                Meteor.call('updateListItem', documentId, todoItem);
             }
         },
 
@@ -274,6 +272,7 @@ if(Meteor.isServer){
 
     //methods inside server
     Meteor.methods({
+        //method to create new list
         'createNewList': function(listName){
             var currentUser = Meteor.userId();
             if(listName == ""){
@@ -288,6 +287,47 @@ if(Meteor.isServer){
                 throw new Meteor.Error("not-logged-in", "You're not logged-in.");
             }
             return Lists.insert(data);
+        },
+
+        //method to create new task under a list
+        'createListItem': function(todoName, currentList){
+
+            check(todoName, String);
+            check(currentList, String);
+
+            var currentUser = Meteor.userId();
+            var data = {
+                name: todoName,
+                completed: false,
+                createdAt: new Date(),
+                createdBy: currentUser,
+                listId: currentList
+            }
+
+            if(!currentUser){
+                throw new Meteor.Error("not-logged-in", "You're not logged-in.");
+            }
+
+            var currentList = Lists.findOne(currentList);
+            if(currentList.createdBy != currentUser){
+                throw new Meteor.Error("invalid-user", "You don't own that list.");
+            }
+
+            return Todos.insert(data);
+        },
+
+        //method to edit tasks in a list
+        'updateListItem': function(documentId, todoItem){
+            check(todoItem, String);
+            var currentUser = Meteor.userId();
+            var data = {
+                _id: documentId,
+                createdBy: currentUser
+            }
+            if(!currentUser){
+                throw new Meteor.Error("not-logged-in", "You're not logged-in.");
+            }
+            Todos.update(data, {$set: { name: todoItem }});
         }
     });
 
