@@ -9,15 +9,25 @@ Router.route('/',{
 Router.route('/register');
 Router.route('/login');
 
+//to create collections
 Todos = new Mongo.Collection('todos');
+Lists = new Meteor.Collection('lists');
 
 if(Meteor.isClient){
-    // client code goes here
 
     //helper functions
+
+    //helper to find my todos
     Template.todos.helpers({
         'todo': function(){
             return Todos.find({}, {sort: {createdAt: -1}});
+        }
+    });
+
+    //helper to find my list
+    Template.lists.helpers({
+        'list': function(){
+            return Lists.find({}, {sort: {name: 1}});
         }
     });
 
@@ -44,8 +54,19 @@ if(Meteor.isClient){
     });
 
     //code for events
+    Template.addList.events({
+        'submit form': function(event){
+          event.preventDefault();
+          var listName = $('[name=listName]').val();
+          Lists.insert({
+              name: listName
+          });
+          $('[name=listName]').val('');
+        }
+    });
+
     Template.addTodo.events({
-        /// events go here
+        
         'submit form': function(event){
             event.preventDefault();
             var todoName = $('[name="todoName"]').val();
@@ -60,7 +81,7 @@ if(Meteor.isClient){
 
     // event for todo item
     Template.todoItem.events({
-        // events go here
+       
         'click .delete-todo': function(event){
             event.preventDefault();
             var documentId = this._id;

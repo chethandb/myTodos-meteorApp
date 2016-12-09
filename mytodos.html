@@ -12,6 +12,7 @@
 <template name="main">
     <h1>My Todos</h1>
     {{> navigation}}
+    {{> lists}}
     {{> yield}}
     <hr />
     <p>Copyright &copy; Todos, 2014-2015.</p>
@@ -40,6 +41,24 @@
         {{/each}}
     </ul>
     {{> todosCount}}
+</template>
+
+<!-- display list template -->
+<template name="lists">
+    <h2>My Lists</h2>
+    {{> addList}}
+    <ul>
+        {{#each list}}
+            <li>{{name}}</li>
+        {{/each}}
+    </ul>
+</template>
+
+<!-- add list template -->
+<template name="addList">
+    <form>Create a list:
+        <input type="text" placeholder="List name here..." name="listName">
+    </form>
 </template>
 
 <!-- todo item template -->
