@@ -1,10 +1,11 @@
 //Routing of pages 
 Router.configure({
-    layoutTemplate: 'main'
+    layoutTemplate: 'main',
+    loadingTemplate: 'loading'
 });
 Router.route('/',{
     name: 'home',
-    template: 'home'
+    template: 'home',
 });
 Router.route('/register');
 Router.route('/login');
@@ -24,8 +25,9 @@ Router.route('/list/:_id', {
             this.render("login");
         }
     },
-    subscriptions: function(){
-        return Meteor.subscribe('todos');
+    waitOn: function(){
+        var currentList = this.params._id;
+        return Meteor.subscribe('todos', currentList);
     }
 });
 
@@ -36,8 +38,13 @@ Lists = new Meteor.Collection('lists');
 if(Meteor.isClient){
 
     // subscribe function
-    Meteor.subscribe('lists');
+    //Meteor.subscribe('lists');
 
+    //template level subscription
+    Template.lists.onCreated(function () {
+        this.subscribe('lists');
+    });
+    
     //validation code
     $.validator.setDefaults({
         rules: {
@@ -260,8 +267,8 @@ if(Meteor.isServer){
         return Lists.find({ createdBy: currentUser });
     });
 
-    Meteor.publish('todos', function(){
+    Meteor.publish('todos', function(currentList){
         var currentUser = this.userId;
-        return Todos.find({ createdBy: currentUser })
+        return Todos.find({ createdBy: currentUser, listId: currentList })
     });
 }
