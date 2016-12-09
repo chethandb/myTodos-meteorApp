@@ -80,6 +80,16 @@ if(Meteor.isClient){
         }
     });
 
+    //code for login events
+    Template.login.events({
+        'submit form': function(event){
+            event.preventDefault();
+            var email = $('[name=email]').val();
+            var password = $('[name=password]').val();
+            Meteor.loginWithPassword(email, password);
+        }
+    });
+
     //add list event
     Template.addList.events({
         'submit form': function(event){
@@ -144,6 +154,15 @@ if(Meteor.isClient){
             }
         }
 
+    });
+    
+    //logout event
+    Template.navigation.events({
+        'click .logout': function(event){
+            event.preventDefault();
+            Meteor.logout();
+            Router.go('login');
+        }
     });
 }
 
