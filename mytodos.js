@@ -16,10 +16,6 @@ Router.route('/list/:_id', {
         var currentUser = Meteor.userId();
         return Lists.findOne({ _id: currentList, createdBy: currentUser });
     },
-    onRun: function(){
-        console.log("You triggered 'onRun' for 'listPage' route.");
-        this.next();
-    },
     onBeforeAction: function(){
         var currentUser = Meteor.userId();
         if(currentUser){
@@ -27,6 +23,9 @@ Router.route('/list/:_id', {
         } else {
             this.render("login");
         }
+    },
+    subscriptions: function(){
+        return Meteor.subscribe('todos');
     }
 });
 
@@ -35,6 +34,9 @@ Todos = new Mongo.Collection('todos');
 Lists = new Meteor.Collection('lists');
 
 if(Meteor.isClient){
+
+    // subscribe function
+    Meteor.subscribe('lists');
 
     //validation code
     $.validator.setDefaults({
@@ -253,4 +255,13 @@ if(Meteor.isClient){
 
 if(Meteor.isServer){
     // server code goes here
+    Meteor.publish('lists', function(){
+        var currentUser = this.userId;
+        return Lists.find({ createdBy: currentUser });
+    });
+
+    Meteor.publish('todos', function(){
+        var currentUser = this.userId;
+        return Todos.find({ createdBy: currentUser })
+    });
 }
