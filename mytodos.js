@@ -44,7 +44,7 @@ if(Meteor.isClient){
     Template.lists.onCreated(function () {
         this.subscribe('lists');
     });
-    
+
     //validation code
     $.validator.setDefaults({
         rules: {
@@ -185,14 +185,7 @@ if(Meteor.isClient){
         'submit form': function(event){
             event.preventDefault();
             var listName = $('[name=listName]').val();
-            var currentUser = Meteor.userId();
-            Lists.insert({
-                name: listName,
-                createdBy: currentUser
-            }, function(error, results){
-                Router.go('listPage', { _id: results });
-            });
-            $('[name=listName]').val('');
+            Meteor.call('createNewList', listName);
         }
     });
 
@@ -271,4 +264,34 @@ if(Meteor.isServer){
         var currentUser = this.userId;
         return Todos.find({ createdBy: currentUser, listId: currentList })
     });
+
+    //methods inside server
+    Meteor.methods({
+        'createNewList': function(listName){
+            var currentUser = Meteor.userId();
+            if(listName == ""){
+                listName = defaultName(currentUser);
+            }
+            check(listName, String);
+            var data = {
+                name: listName,
+                createdBy: currentUser
+            }
+            if(!currentUser){
+                throw new Meteor.Error("not-logged-in", "You're not logged-in.");
+            }
+            Lists.insert(data);
+        }
+    });
+
+    //function called when the list name is left empty
+    function defaultName(currentUser) {
+        var nextLetter = 'A'
+        var nextName = 'List ' + nextLetter;
+        while (Lists.findOne({ name: nextName, createdBy: currentUser })) {
+            nextLetter = String.fromCharCode(nextLetter.charCodeAt(0) + 1);
+            nextName = 'List ' + nextLetter;
+        }
+        return nextName;
+    }
 }
