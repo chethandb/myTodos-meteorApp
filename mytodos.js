@@ -66,6 +66,20 @@ if(Meteor.isClient){
 
     //code for events
 
+    //code for register events
+    Template.register.events({
+        'submit form': function(event){
+            event.preventDefault();
+            var email = $('[name=email]').val();
+            var password = $('[name=password]').val();
+            Accounts.createUser({
+                email: email,
+                password: password
+            });
+            Router.go('home');
+        }
+    });
+
     //add list event
     Template.addList.events({
         'submit form': function(event){
