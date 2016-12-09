@@ -54,10 +54,12 @@ if(Meteor.isClient){
     //helper to count the completed todos
     Template.todosCount.helpers({
         'totalTodos': function(){
-            return Todos.find().count();
+            var currentList = this._id;
+            return Todos.find({ listId: currentList }).count();
         },
         'completedTodos': function(){
-            return Todos.find({ completed: true }).count();
+            var currentList = this._id;
+            return Todos.find({ listId: currentList, completed: true }).count();
         }
     });
 
