@@ -1,9 +1,35 @@
-<head>
-    <title>Todos</title>
-</head>
-<body>
-    {{> todos}}
-</body>
+<!-- register template -->
+<template name="register">
+    <h2>Register</h2>
+</template>
+
+<!-- login template -->
+<template name="login">
+    <h2>Login</h2>
+</template>
+
+<!-- main template -->
+<template name="main">
+    <h1>My Todos</h1>
+    {{> navigation}}
+    {{> yield}}
+    <hr />
+    <p>Copyright &copy; Todos, 2014-2015.</p>
+</template>
+
+<!-- home template -->
+<template name="home">
+    <p>Welcome to the Todos application.</p>
+</template>
+
+<!-- navigation template -->
+<template name="navigation">
+    <ul>
+        <li><a href="{{pathFor route='home'}}">Home</a></li>
+        <li><a href="{{pathFor route='register'}}">Register</a></li>
+        <li><a href="{{pathFor route='login'}}">Login</a></li>
+    </ul>
+</template>
 
 <!-- todos template -->
 <template name="todos">

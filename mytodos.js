@@ -1,3 +1,14 @@
+//Routing of pages 
+Router.configure({
+    layoutTemplate: 'main'
+});
+Router.route('/',{
+    name: 'home',
+    template: 'home'
+});
+Router.route('/register');
+Router.route('/login');
+
 Todos = new Mongo.Collection('todos');
 
 if(Meteor.isClient){
