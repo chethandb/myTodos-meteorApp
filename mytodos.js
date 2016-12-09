@@ -29,14 +29,16 @@ if(Meteor.isClient){
     Template.todos.helpers({
         'todo': function(){
             var currentList = this._id;
-            return Todos.find({ listId: currentList }, {sort: {createdAt: -1}})
+            var currentUser = Meteor.userId();
+            return Todos.find({ listId: currentList, createdBy: currentUser }, {sort: {createdAt: -1}})
         }
     });
 
     //helper to find my list
     Template.lists.helpers({
         'list': function(){
-            return Lists.find({}, {sort: {name: 1}});
+            var currentUser = Meteor.userId();
+            return Lists.find({ createdBy: currentUser }, {sort: {name: 1}})
         }
     });
 
@@ -104,14 +106,16 @@ if(Meteor.isClient){
     //add list event
     Template.addList.events({
         'submit form': function(event){
-          event.preventDefault();
-          var listName = $('[name=listName]').val();
-          Lists.insert({
-              name: listName
-          }, function(error, results){
+            event.preventDefault();
+            var listName = $('[name=listName]').val();
+            var currentUser = Meteor.userId();
+            Lists.insert({
+                name: listName,
+                createdBy: currentUser
+            }, function(error, results){
                 Router.go('listPage', { _id: results });
-          });
-          $('[name=listName]').val('');
+            });
+            $('[name=listName]').val('');
         }
     });
 
@@ -120,11 +124,13 @@ if(Meteor.isClient){
         'submit form': function(event){
             event.preventDefault();
             var todoName = $('[name="todoName"]').val();
+            var currentUser = Meteor.userId();
             var currentList = this._id;
             Todos.insert({
                 name: todoName,
                 completed: false,
                 createdAt: new Date(),
+                createdBy: currentUser,
                 listId: currentList
             });
             $('[name="todoName"]').val('');
