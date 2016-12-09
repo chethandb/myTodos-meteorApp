@@ -1,0 +1,16 @@
+<head>
+    <title>Todos</title>
+</head>
+<body>
+    {{> todos}}
+</body>
+
+<!-- todos template -->
+<template name="todos">
+    <ul>
+        {{#each todo}}
+            <li>{{name}}</li>
+        {{/each}}
+    </ul>
+</template>
+
